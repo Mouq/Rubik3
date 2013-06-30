@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>Rubik Cube with HTML5 canvas and three.js</title>
+<title>Mobile Rubik</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<style>
@@ -46,39 +46,11 @@
 	<script type="text/javascript" src="src/Rubik.js"></script>
 	</head>
 	<body>
-		<div style="color:#fff;position:absolute;top:5px;left:300px;">
-		Original Code: <a href="http://nikos-web-development.netai.net/">Nikos M.</a>
-		</div>
 		<div id='controls' style='position:absolute;z-index:100;width:200px;margin:0;padding:0'>
 			<div id='pad' style="background-image:url('assets/pad.jpg');width:100px;height:100px;position:relative;cursor:pointer;">
 				<div id='cross' style="position:absolute;width:20px;height:20px;top:40px;left:40px;background:transparent url('assets/cross.png'); no-repeat 0 0"></div>
 			</div>
-			<div>
-				<select size="1" id="rubik-type">
-				<option value="2">2x2x2</option>    
-				<option value="3" selected="selected">3x3x3</option>
-				<option value="4">4x4x4</option>
-				</select><br />
-				<input type='button' id='newrubik' value='new cube'/><br />
-				<input type='button' id='scramble' value='scramble'/><br />
-				<input type='button' id='undo' value='undo'/><br /><br />
-				<p style="color:#fff">Drag Mouse with Button pressed over row or column to rotate sides</p>
-			</div>
-			<div id='colors' style="position:relative;">
-				<div class='color-class colorSelector'><div id='cstop1'></div></div>
-				<div class='color-class colorSelector'><div id='csbottom1'></div></div>
-				<div class='color-class colorSelector'><div id='csleft1'></div></div>
-				<div style="float:none;clear:both"></div>
-				<div class='color-class colorSelector'><div id='csright1'></div></div>
-				<div class='color-class colorSelector'><div id='csfront1'></div></div>
-				<div class='color-class colorSelector'><div id='csback1'></div></div>
-				<div style="float:none;clear:both"></div>
-				<br /><br />
-				<div class='color-class colorSelector'><div id='csinside1'></div></div>
-				<div style="float:none;clear:both"></div>
-			</div>
 		</div>
-		<div id="flatimage" style="position:absolute;z-index:100;bottom:0;right:0;"></div>
 		<div id="container" style="position:relative;margin:0 auto;padding:0;z-index:0;cursor:pointer;"></div>
 		<!--  	Rubik Cube Viewer (and future Solver, not yet) implementation in HTML 5 canvas, javascript three.js 3D Library
 				Based on previous implementation of Rubik Cube Viewer and Solver in Actionscript 3 with PaperVision3D 2
@@ -116,7 +88,6 @@
 			var	pressed_cub,released_cub;
 			var colors={inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0x0000FF,front:0xFF0000,back:0x00FFFF}; // mutually complementary colors
 			
-			cs_init();
 			init();
 			animate();
 			
@@ -132,196 +103,9 @@
 					prefix+='0';
 				return('#'+prefix+hx);
 			}
+	
 			
-			function cstop_change_update(hsb, hex, rgb) {
-			var bb=colors.top;
-			colors.top=parseInt(hex,16);
-			if (rubikcube.setRubikColors({colors:colors}))
-			{
-				cstope.style.backgroundColor=toHex(hex);
-				updateflatimage();
-			}
- 			else
-				colors.top=bb;
-			$(cstope).ColorPickerHide();
-			}
 			
-			function csbottom_change_update(hsb, hex, rgb) {
-			var bb=colors.bottom;
-			colors.bottom=parseInt(hex,16);
-			if (rubikcube.setRubikColors({colors:colors}))
-			{
-				csbottome.style.backgroundColor=toHex(hex);
-				updateflatimage();
-			}
- 			else
-				colors.bottom=bb;
-			$(csbottome).ColorPickerHide();
-			}
-			
-			function csleft_change_update(hsb, hex, rgb) {
-			var bb=colors.left;
-			colors.left=parseInt(hex,16);
-			if (rubikcube.setRubikColors({colors:colors}))
-			{
-				cslefte.style.backgroundColor=toHex(hex);
-				updateflatimage();
-			}
- 			else
-				colors.left=bb;
-			$(cslefte).ColorPickerHide();
-			}
-			
-			function csright_change_update(hsb, hex, rgb) {
-			var bb=colors.right;
-			colors.right=parseInt(hex,16);
-			if (rubikcube.setRubikColors({colors:colors}))
-			{
-				csrighte.style.backgroundColor=toHex(hex);
-				updateflatimage();
-			}
- 			else
-				colors.right=bb;
-			$(csrighte).ColorPickerHide();
-			}
-			
-			function csfront_change_update(hsb, hex, rgb) {
-			var bb=colors.front;
-			colors.front=parseInt(hex,16);
-			if (rubikcube.setRubikColors({colors:colors}))
-			{
-				csfronte.style.backgroundColor=toHex(hex);
-				updateflatimage();
- 			}
-			else
-				colors.front=bb;
-			$(csfronte).ColorPickerHide();
-			}
-			
-			function csback_change_update(hsb, hex, rgb) {
-			var bb=colors.back;
-			colors.back=parseInt(hex,16);
-			if (rubikcube.setRubikColors({colors:colors}))
-			{
-				csbacke.style.backgroundColor=toHex(hex);
-				updateflatimage();
- 			}
-			else
-				colors.back=bb;
-			$(csbacke).ColorPickerHide();
-			}
-			
-			function csinside_change_update(hsb, hex, rgb) {
-			var bb=colors.inside;
-			colors.inside=parseInt(hex,16);
-			if (rubikcube.setRubikColors({colors:colors}))
-			{
-				csinsidee.style.backgroundColor=toHex(hex);
-				updateflatimage();
- 			}
-			else
-				colors.inside=bb;
-			$(csinsidee).ColorPickerHide();
-			}
-			
-			function updatecolors()
-			{
-				cstope.style.backgroundColor=toHex(colors.top);
-				csbottome.style.backgroundColor=toHex(colors.bottom);
-				cslefte.style.backgroundColor=toHex(colors.left);
-				csrighte.style.backgroundColor=toHex(colors.right);
-				csfronte.style.backgroundColor=toHex(colors.front);
-				csbacke.style.backgroundColor=toHex(colors.back);
-				csinsidee.style.backgroundColor=toHex(colors.inside);
-			}
-			
-			function cs_init() {
-				cstope=document.getElementById("cstop1");
-				csbottome=document.getElementById("csbottom1");
-				cslefte=document.getElementById("csleft1");
-				csrighte=document.getElementById("csright1");
-				csfronte=document.getElementById("csfront1");
-				csbacke=document.getElementById("csback1");
-				csinsidee=document.getElementById("csinside1");
-				
-				updatecolors();
-				
-				$(cstope).ColorPicker({
-					onSubmit:cstop_change_update,
-					onBeforeShow: function () {
-						$(this).ColorPickerSetColor(colors.top.toString(16));
-					},
-					onShow: function (colpkr) {
-						$(colpkr).fadeIn(500);
-						return false;
-					}
-				});
-				$(csbottome).ColorPicker({
-					onSubmit:csbottom_change_update,
-					onBeforeShow: function () {
-						$(this).ColorPickerSetColor(colors.bottom.toString(16));
-					},
-					onShow: function (colpkr) {
-						$(colpkr).fadeIn(500);
-						return false;
-					}
-				});
-				$(cslefte).ColorPicker({
-					onSubmit:csleft_change_update,
-					onBeforeShow: function () {
-						$(this).ColorPickerSetColor(colors.left.toString(16));
-					},
-					onShow: function (colpkr) {
-						$(colpkr).fadeIn(500);
-						return false;
-					}
-				});
-				$(csrighte).ColorPicker({
-					onSubmit:csright_change_update,
-					onBeforeShow: function () {
-						$(this).ColorPickerSetColor(colors.right.toString(16));
-					},
-					onShow: function (colpkr) {
-						$(colpkr).fadeIn(500);
-						return false;
-					}
-				});
-				$(csfronte).ColorPicker({
-					onSubmit:csfront_change_update,
-					onBeforeShow: function () {
-						$(this).ColorPickerSetColor(colors.front.toString(16));
-					},
-					onShow: function (colpkr) {
-						$(colpkr).fadeIn(500);
-						return false;
-					}
-				});
-				$(csbacke).ColorPicker({
-					onSubmit:csback_change_update,
-					onBeforeShow: function () {
-						$(this).ColorPickerSetColor(colors.back.toString(16));
-					},
-					onShow: function (colpkr) {
-						$(colpkr).fadeIn(500);
-						return false;
-					}
-				});
-				$(csinsidee).ColorPicker({
-					onSubmit:csinside_change_update,
-					onBeforeShow: function () {
-						$(this).ColorPickerSetColor(colors.inside.toString(16));
-					},
-					onShow: function (colpkr) {
-						$(colpkr).fadeIn(500);
-						return false;
-					}
-				});
-			}
-			
-			function updateflatimage()
-			{
-				var flat=rubikcube.getFlatImage(flatimage);
-			}
 			
 			function init() {
 
@@ -351,9 +135,8 @@
 				projector = new THREE.Projector();
 
 				// Rubik Cube
-				rubikcube=new Rubik(rubikN.options[rubikN.selectedIndex].value,200,0.3,colors);
+				rubikcube=new Rubik('3x3x3'.value,200,0.3,colors);
 				scene.add( rubikcube );
-				rubikcube.onChange=updateflatimage;
 				
 				renderer = new THREE.CanvasRenderer();
 				renderer.setSize( w, h );
@@ -361,33 +144,14 @@
 				container.appendChild( renderer.domElement );
 
 				//container.addEventListener( 'dblclick', onDblClick, false );
-				container.addEventListener( 'mousedown', onDocumentMouseDown, false );
 				//container.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				//container.addEventListener( 'touchmove', onDocumentTouchMove, false );
 				pad.addEventListener( 'mousedown', onPadMouseDown, false );
 				//pad.addEventListener( 'touchstart', onDocumentTouchStart, false );
 				//pad.addEventListener( 'touchmove', onDocumentTouchMove, false );
-				newbt.addEventListener( 'click', function(){scene.remove(rubikcube); rubikcube=new Rubik(rubikN.options[rubikN.selectedIndex].value,200,0.3,colors); scene.add(rubikcube); rubikcube.onChange=updateflatimage; renderer.render( scene, camera );updateflatimage();}, false );
-				scramblebt.addEventListener( 'click', function(){rubikcube.scramble(10);updateflatimage();}, false );
-				undobt.addEventListener( 'click', function(){
-										if (rubikcube.undo()=='setRubikColors') {
-											colors={
-											front:rubikcube.rubik.colors.front,
-											back:rubikcube.rubik.colors.back,
-											left:rubikcube.rubik.colors.left,
-											right:rubikcube.rubik.colors.right,
-											top:rubikcube.rubik.colors.top,
-											bottom:rubikcube.rubik.colors.bottom,
-											inside:rubikcube.rubik.colors.inside
-											};
-											updatecolors();
-											//updateflatimage();
-										}
-									}, false );
 				
 				// after render works
 				renderer.render( scene, camera );
-				updateflatimage();
 			}
 
 			function getCubelet(event)
