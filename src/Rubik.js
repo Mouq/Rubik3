@@ -1,4 +1,4 @@
-﻿var Rubik=function(Np,sidep,dspp,colorsp/*,render*/)
+var Rubik=function(Np,sidep,dspp,colorsp/*,render*/)
 {
     THREE.Object3D.call(this);
 	// public properties
@@ -82,7 +82,8 @@
 				}
 				
 				// new cubelet
-				var cubelet =new THREE.Mesh( new THREE.CubeGeometry( cubletsidex, cubletsidey, cubletsidez, 1, 1, 1, materials ), new THREE.MeshFaceMaterial() );
+				var cubelet =new THREE.Mesh( new THREE.CubeGeometry( cubletsidex, cubletsidey, cubletsidez, 1, 1, 1, materials ), 
+                new THREE.MeshFaceMaterial() );
 				
 				// position it centered
 				cubelet.position.x = (cubletsidex+dsp*cubletsidex)*xx -sidex/2 +cubletsidex/2;

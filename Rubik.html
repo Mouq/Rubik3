@@ -16,173 +16,76 @@
 			}
 	</style>
 	<script type="text/javascript" src="assets/js/jquery.js"></script>
-	<script type="text/javascript" src="assets/js/Three.js"></script>
-	<script type="text/javascript" src="assets/js/Tween.js"></script>
-	<script type="text/javascript" src="assets/js/RequestAnimationFrame.js"></script>
+	<script type="text/javascript" src="assets/js/three.js"></script>
+	<script type="text/javascript" src="assets/js/OrbitControls.js"></script>
 	<script type="text/javascript" src="src/Rubik.js"></script>
 	</head>
 	<body>
-		<div id='controls' style='position:absolute;z-index:100;width:200px;margin:0;padding:0'>
-			<div id='pad' style="background-image:url('assets/pad.jpg');width:100px;height:100px;position:relative;cursor:pointer;">
-				<div id='cross' style="position:absolute;width:20px;height:20px;top:40px;left:40px;background:transparent url('assets/cross.png'); no-repeat 0 0"></div>
-			</div>
-		</div>
-		<div id="container" style="position:relative;margin:0 auto;padding:0;z-index:0;cursor:pointer;"></div>
+		<div id="container" style="position:relative;margin:0 auto;padding:0;z-index:0;"></div>
 		<script>
 			var container;
-			var pad,cross,scramblebt,undobt,newbt,flatimage,rubikN;
-			var padw=100,padh=100,pad2x=50,pad2y=50;
-			var cw=20,ch=20,cw2=10,ch2=10;
-			var camera, scene, renderer, projector;
+			var camera, scene, renderer;
 
 			var rubikcube;
 
-			var targetRotationY = 0;
-			var targetRotationOnMouseDownY = 0;
-			var targetRotationX = 0;
-			var targetRotationOnMouseDownX = 0;
-			var rad=500;
-			var mouse={x:0,y:0};
-			var mouseX = 0;
-			var mouseXOnMouseDown = 0;
-			var mouseY = 0;
-			var mouseYOnMouseDown = 0;
-
-			var windowHalfX = window.innerWidth / 2;
-			var windowHalfY = window.innerHeight / 2;
-			var w,h,w2,h2;
-			var cstop,csbottom,csleft,csright,csfront,csback,csinside;
-			var cstope,csbottome,cslefte,csrighte,csfronte,csbacke,csinsidee;
-			var	pressed_cub,released_cub;
+			var w,h;
 			var colors={inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0x0000FF,front:0xFF0000,back:0x00FFFF}; // mutually complementary colors
-			
+
+            var cameraControls;
+            
 			init();
 			animate();
 			
 			function init() {
 
-				container=document.getElementById('container');
-				pad=document.getElementById('pad');
-				cross=document.getElementById('cross');
-				
-				w=window.innerWidth;
+    			w=window.innerWidth;
 				h=window.innerHeight;
-				w2=w/2;
-				h2=h/2;
-				container.style.width=w+"px";
-				container.style.height=h+"px";
-				container.style.marginTop=0.5*(window.innerHeight-h)+'px';
-				
-				scene = new THREE.Scene();
+                
+				container=configureContainer(w, h);
 
-				camera = new THREE.PerspectiveCamera( 70, w / h, 1, 1000 );
-				camera.position.z = rad;
-				scene.add( camera );
-				
-				// Rubik Cube
+            	camera = new THREE.PerspectiveCamera( 45, w / h, 1, 4000 );
+                camera.position.z = 500;
+        		cameraControls = new THREE.OrbitControls( camera);
+                cameraControls.addEventListener('change', render);
+                
+                scene = new THREE.Scene();
 				rubikcube=new Rubik('3x3x3'.value,200,0.3,colors);
-				scene.add( rubikcube );
+                var CUBE_SIZE = 100;
+                var cubeMesh = new THREE.Mesh(
+                    new THREE.CubeGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE),
+                    new THREE.MeshBasicMaterial( {wireframe: true } ));
+				// scene.add( rubikcube );
+				scene.add( cubeMesh );
 				
-				renderer = new THREE.CanvasRenderer();
-				renderer.setSize( w, h );
+        		renderer = createRenderer(w, h);
 
 				container.appendChild( renderer.domElement );
-
-				pad.addEventListener( 'mousedown', onPadMouseDown, false );
+			}
+            
+            function configureContainer(w, h) {
+    			container=document.getElementById('container');
 				
-				// after render works
-				renderer.render( scene, camera );
-			}
-
-			function getCubelet(event)
-			{
-				mouse.x = ( event.clientX / w ) * 2 - 1;
-				mouse.y = - ( event.clientY / h ) * 2 + 1;
-				var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-				projector.unprojectVector( vector, camera );
-
-				var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
-
-				var intersects = ray.intersectObjects( rubikcube.children );
-
-				if ( intersects.length > 0 ) {
-					return({cubelet:intersects[0].object,face:intersects[0].face, ray:ray,vector:vector});
-				}
-				return(null);
-			}
-			
-			function onPadMouseDown( event ) {
-
-				event.preventDefault();
-
-				pad.addEventListener( 'mousemove', onPadMouseMove, false );
-				pad.addEventListener( 'mouseup', onPadMouseUp, false );
-				pad.addEventListener( 'mouseout', onPadMouseOut, false );
-				
-				mouseX=(( event.clientX / padw ) * 2 - 1);
-				targetRotationY=mouseX;
-				mouseY=(( event.clientY / padh ) * 2 - 1);
-				targetRotationX=mouseY;
-				
-				targetRotationOnMouseDownY = targetRotationY;
-				targetRotationOnMouseDownX = targetRotationX;
-				cross.style.left=(event.clientX-cw2)+'px';
-				cross.style.top=(event.clientY-ch2)+'px';
-			}
-			
-			function onPadMouseMove( event ) {
-
-				if (event.clientX>padw || event.clientX<0 || event.clientY>padh || event.clientY<0) return;
-				mouseX=(( event.clientX / padw ) * 2 - 1);
-				targetRotationY=mouseX;
-				mouseY=(( event.clientY / padh ) * 2 - 1);
-				targetRotationX=mouseY;
-				cross.style.left=(event.clientX-cw2)+'px';
-				cross.style.top=(event.clientY-ch2)+'px';
-			}
-			
-			function onPadMouseUp( event ) {
-
-				cross.style.left=(event.clientX-cw2)+'px';
-				cross.style.top=(event.clientY-ch2)+'px';
-				pad.removeEventListener( 'mousemove', onPadMouseMove, false );
-				pad.removeEventListener( 'mouseup', onPadMouseUp, false );
-				pad.removeEventListener( 'mouseout', onPadMouseOut, false );
-			}
-
-			
-			function onPadMouseOut( event ) {
-
-				cross.style.left=(event.clientX-cw2)+'px';
-				cross.style.top=(event.clientY-ch2)+'px';
-				pad.removeEventListener( 'mousemove', onPadMouseMove, false );
-				pad.removeEventListener( 'mouseup', onPadMouseUp, false );
-				pad.removeEventListener( 'mouseout', onPadMouseOut, false );
-			}
+				container.style.width=w+"px";
+				container.style.height=h+"px";
+                return container;
+            }
+            
+            function createRenderer(w, h) {
+    			var renderer = new THREE.WebGLRenderer({ antialias: true } );
+				renderer.setSize( w, h );
+                return renderer;
+            }
 
 			function animate() {
 
 				requestAnimationFrame( animate );
 
-				render();
+                cameraControls.update();
 
 			}
 
-			function render2()
-			{
-				TWEEN.update();
-				renderer.render( scene, camera );
-			}
-			
-			function render() {
-
-				var multx=0.5*Math.PI;
-				var multy=-Math.PI;
-				camera.position.x = rad * Math.sin( targetRotationY*multy ) * Math.cos( targetRotationX*multx );
-				camera.position.y = rad * Math.sin( targetRotationX*multx );
-				camera.position.z = rad * Math.cos( targetRotationY*multy ) * Math.cos( targetRotationX*multx );
-				camera.lookAt(scene.position);
-				render2();
-			}
+            function render() {
+        		renderer.render( scene, camera );
+            }
 		</script>
 </body></html>
