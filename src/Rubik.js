@@ -1,4 +1,4 @@
-var Rubik=function(Np,sidep,dspp,colorsp/*,render*/)
+var Rubik=function(Np,sidep,dspp, cubeletFactory)
 {
     THREE.Object3D.call(this);
 	// public properties
@@ -21,9 +21,6 @@ var Rubik=function(Np,sidep,dspp,colorsp/*,render*/)
 	var dsp=0.3;
 	if (typeof dspp !='undefined' && dspp>0)
 	dsp=dspp;
-	var colors={inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0x0000FF,front:0xFF0000,back:0x00FFFF}; // mutually complementary colors
-	if (typeof colorsp !='undefined' && colorsp!=null)
-	colors=colorsp;
 	
 	//N=3;
 	var cubelets = [];
@@ -41,63 +38,13 @@ var Rubik=function(Np,sidep,dspp,colorsp/*,render*/)
 		{
 			for (yy=0;yy<Ny;yy++)
 			{						
-				var materials=[];
-				for (var mii=0;mii<6;mii++)
-				{
-					var mat=new THREE.MeshBasicMaterial( { color: colors.inside } );
-					mat.name='inside';
-					materials.push( mat );
-				}
-				
-				// color external faces
-				if (yy==0)
-				{
-					materials[this.sides['bottom']].color.setHex( colors.bottom );
-					materials[this.sides['bottom']].name='bottom';
-				}
-				if (yy==Ny-1)
-				{
-					materials[this.sides['top']].color.setHex( colors.top );
-					materials[this.sides['top']].name='top';
-				}
-				if (xx==Nx-1)
-				{
-					materials[this.sides['right']].color.setHex( colors.right );
-					materials[this.sides['right']].name='right';
-				}
-				if (xx==0)
-				{
-					materials[this.sides['left']].color.setHex( colors.left );
-					materials[this.sides['left']].name='left';
-				}
-				if (zz==Nz-1)
-				{
-					materials[this.sides['front']].color.setHex( colors.front );
-					materials[this.sides['front']].name='front';
-				}
-				if (zz==0)
-				{
-					materials[this.sides['back']].color.setHex( colors.back );
-					materials[this.sides['back']].name='back';
-				}
-				
-				// new cubelet
-				var cubelet =new THREE.Mesh( new THREE.CubeGeometry( cubletsidex, cubletsidey, cubletsidez, 1, 1, 1, materials ), 
-                new THREE.MeshFaceMaterial() );
-				
-				// position it centered
-				cubelet.position.x = (cubletsidex+dsp*cubletsidex)*xx -sidex/2 +cubletsidex/2;
-				cubelet.position.y = (cubletsidey+dsp*cubletsidey)*yy -sidey/2 +cubletsidey/2;
-				cubelet.position.z = (cubletsidez+dsp*cubletsidez)*zz -sidez/2 +cubletsidez/2;
-				cubelet.overdraw = true;
-				cubelet.extra_data={xx:xx,yy:yy,zz:zz};
-				cubelets.push(cubelet);
-				// add it
-				this.add(cubelet);
+                var cubelet = cubeletFactory(new THREE.Vector3(xx, yy, zz), new THREE.Vector3(Nx, Ny, Nz));
+                this.add(cubelet);
+                cubelets.push(cubelet);
 			}
 		}
 	}
-	this.rubik={N:N, colors:{front:colors.front,back:colors.back,top:colors.top,bottom:colors.bottom,left:colors.left,right:colors.right,inside:colors.inside}, cubelets:cubelets, side:sidex, cubeletside:cubletsidex, dsp:dsp};
+	this.rubik={N:N, cubelets:cubelets, side:sidex, cubeletside:cubletsidex, dsp:dsp};
 	//this.ren.renderer.render(this.ren.scene,this.ren.camera);
 };
 // Rubik is subclass of Object3D
