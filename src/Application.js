@@ -1,4 +1,3 @@
-var container;
 var camera;
 var cameraControls;
 var scene; 
@@ -7,10 +6,8 @@ var COLORS = {inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0
 
 function init(containerId) {
 
-    var size = getWindowSize();
+    var size = calcCanvasSize();
     
-	container=configureContainer(containerId, size);
-
 	camera = new THREE.PerspectiveCamera( 45, size.ratio, 1, 4000 );
     camera.position.z = 500;
 	cameraControls = new THREE.OrbitControls( camera);
@@ -20,8 +17,8 @@ function init(containerId) {
 	scene.add( cube() );
 	
 	renderer = createRenderer(size);
-
-	container.appendChild( renderer.domElement );
+    
+	document.getElementById(containerId).appendChild( renderer.domElement );
     
     animate();
 }
@@ -35,27 +32,24 @@ function cube() {
     return cubeMesh;
 }
 
-function getWindowSize() {
-    var size = {
-        width: window.innerWidth,        
-        height: window.innerHeight,        
+function calcCanvasSize() {
+    var  size =  {
+        width: $(window).width() - 5,
+        height: $(window).height() - 5
     };
     size.ratio = size.width / size.height;
-    return size;
-    
-}
-
-function configureContainer(containerId, size) {
-	container=document.getElementById(containerId);
-	
-	container.style.width=size.width + "px";
-	container.style.height=size.height + "px";
-    return container;
+    return size;    
 }
 
 function createRenderer(size) {
 	var renderer = new THREE.WebGLRenderer({ antialias: true } );
+    
+    // TODO: set these to false and see what happens
+    renderer.gammaInput = true;
+    renderer.gammaOutput = true;
+    
 	renderer.setSize( size.width, size.height );
+    renderer.setClearColorHex(0x000000, 1.0);
     return renderer;
 }
 
