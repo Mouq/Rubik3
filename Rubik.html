@@ -19,73 +19,13 @@
 	<script type="text/javascript" src="assets/js/three.js"></script>
 	<script type="text/javascript" src="assets/js/OrbitControls.js"></script>
 	<script type="text/javascript" src="src/Rubik.js"></script>
+	<script type="text/javascript" src="src/Application.js"></script>
 	</head>
 	<body>
 		<div id="container" style="position:relative;margin:0 auto;padding:0;z-index:0;"></div>
 		<script>
-			var container;
-			var camera, scene, renderer;
-
-			var rubikcube;
-
-			var w,h;
-			var colors={inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0x0000FF,front:0xFF0000,back:0x00FFFF}; // mutually complementary colors
-
-            var cameraControls;
             
-			init();
-			animate();
-			
-			function init() {
+			init('container');
 
-    			w=window.innerWidth;
-				h=window.innerHeight;
-                
-				container=configureContainer(w, h);
-
-            	camera = new THREE.PerspectiveCamera( 45, w / h, 1, 4000 );
-                camera.position.z = 500;
-        		cameraControls = new THREE.OrbitControls( camera);
-                cameraControls.addEventListener('change', render);
-                
-                scene = new THREE.Scene();
-				rubikcube=new Rubik('3x3x3'.value,200,0.3,colors);
-                var CUBE_SIZE = 100;
-                var cubeMesh = new THREE.Mesh(
-                    new THREE.CubeGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE),
-                    new THREE.MeshBasicMaterial( {wireframe: true } ));
-				// scene.add( rubikcube );
-				scene.add( cubeMesh );
-				
-        		renderer = createRenderer(w, h);
-
-				container.appendChild( renderer.domElement );
-			}
-            
-            function configureContainer(w, h) {
-    			container=document.getElementById('container');
-				
-				container.style.width=w+"px";
-				container.style.height=h+"px";
-                return container;
-            }
-            
-            function createRenderer(w, h) {
-    			var renderer = new THREE.WebGLRenderer({ antialias: true } );
-				renderer.setSize( w, h );
-                return renderer;
-            }
-
-			function animate() {
-
-				requestAnimationFrame( animate );
-
-                cameraControls.update();
-
-			}
-
-            function render() {
-        		renderer.render( scene, camera );
-            }
 		</script>
 </body></html>
