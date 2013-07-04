@@ -38,7 +38,9 @@ var Rubik=function(Np,sidep,dspp, cubeletFactory)
 		{
 			for (yy=0;yy<Ny;yy++)
 			{						
-                var cubelet = cubeletFactory(new THREE.Vector3(xx, yy, zz), new THREE.Vector3(Nx, Ny, Nz));
+                var cubelet = cubeletFactory(
+                    new THREE.Vector3(xx, yy, zz), 
+                    { cubeletCount: {x: Nx, y: Ny, z: Nz}, cubeSize: side});
                 cubelet.position.x = (cubletsidex+dsp*cubletsidex)*xx -sidex/2 +cubletsidex/2;
                 cubelet.position.y = (cubletsidey+dsp*cubletsidey)*yy -sidey/2 +cubletsidey/2;
                 cubelet.position.z = (cubletsidez+dsp*cubletsidez)*zz -sidez/2 +cubletsidez/2;
