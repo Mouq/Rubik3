@@ -40,12 +40,13 @@ function faceMeshGen(faceGeometry) {
  **/
 function buildCubelet(position, cubeMetrics) {
     
+    console.log('called');
     var cubeletSize = cubeMetrics.cubeSize / cubeMetrics.cubeletCount.x;
     var mesh = faceMeshGen(new THREE.CubeGeometry( 1, cubeletSize - 5, cubeletSize - 5, 1, 1, 1 ));
     
     var cubelet =new THREE.Mesh( 
         new THREE.CubeGeometry( cubeletSize, cubeletSize, cubeletSize, 1, 1, 1 ), 
-        new THREE.MeshBasicMaterial( { color: 0x0F0F0F }) );
+        new THREE.MeshBasicMaterial( { color: 0x5F5F5F }) );
     
     var color;
 	// color external faces
@@ -75,7 +76,7 @@ function buildCubelet(position, cubeMetrics) {
 	}
 	
 	cubelet.overdraw = true;
-	// cubelet.extra_data={xx:xx,yy:yy,zz:zz};
+	cubelet.extra_data={xx:position.x ,yy:position.y,zz:position.z};
     
     return cubelet;
 }

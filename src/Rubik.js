@@ -93,7 +93,7 @@ Rubik.prototype.getCubeletSeenCoords=function(cubelet)
 		c=this.rubik.cubelets[cubelet];
 	c.matrixAutoUpdate = false;
 	c.updateMatrixWorld(true);
-	c.position=c.matrix.getPosition();
+    c.position.getPositionFromMatrix(c.matrix);
 	var cubeletseenas={xx:Math.round((c.position.x+this.rubik.side/2-this.rubik.cubeletside/2)/(this.rubik.cubeletside*(1+this.rubik.dsp))),
 						yy:Math.round((c.position.y+this.rubik.side/2-this.rubik.cubeletside/2)/(this.rubik.cubeletside*(1+this.rubik.dsp))),
 						zz:Math.round((c.position.z+this.rubik.side/2-this.rubik.cubeletside/2)/(this.rubik.cubeletside*(1+this.rubik.dsp)))};
@@ -114,7 +114,7 @@ Rubik.prototype.getCubeletsIndex=function(axis,row){
 	{
 		this.rubik.cubelets[i].matrixAutoUpdate = false;
 		this.rubik.cubelets[i].updateMatrixWorld(true);
-		this.rubik.cubelets[i].position=this.rubik.cubelets[i].matrix.getPosition();
+		this.rubik.cubelets[i].position.getPositionFromMatrix(this.rubik.cubelets[i].matrix);
 		switch(axis)
 		{
 		case "y":
@@ -157,7 +157,7 @@ Rubik.prototype.getFacesAsSeen=function(cubelet)
 	var n=[];
 	c.matrixAutoUpdate = false;
 	c.updateMatrixWorld(true);
-	c.position=c.matrix.getPosition();
+	c.position.getPositionFromMatrix(c.matrix);
 	c.geometry.computeFaceNormals();
 	var m=c.matrix.clone();
 	m.setPosition(new THREE.Vector3(0,0,0));
@@ -358,7 +358,7 @@ Rubik.prototype.rotate=function(params)
 		}
 		this.cubelet.matrixAutoUpdate = false;
 		this.cubelet.matrix.multiply(m,this.cubelet.matrix);
-		this.cubelet.position=this.cubelet.matrix.getPosition();
+		this.cubelet.position.getPositionFromMatrix(this.cubelet.matrix);
 		this.cubelet.matrixWorldNeedsUpdate = true;
 		this.prevangle=this.angle;
 	};
@@ -553,192 +553,4 @@ Rubik.prototype.getFaceColorAndIndex=function(seenface,ii,jj)
 	}
 	return(null);
 };
-
-Rubik.prototype.getFlatImage=function(el)
-{
-	if (this.rubik==null || this.rotation_in_progress) return;
-	var toHex=function(col)
-	{
-		var hx;
-		if (col.substring)
-			hx=col;
-		else
-			hx=col.toString(16);
-		var prefix='';
-		for (var i=0;i<6-hx.length;i++)
-			prefix+='0';
-		return('#'+prefix+hx);
-	};
-	var makecolorsquare=function(col,w,h,y,x)
-	{
-		return("<div style='position:absolute;background-color:"+toHex(col)+";width:"+(w)+"px;height:"+(h)+"px;top:"+(y)+"px;left:"+(x)+"px;'></div>");
-	};
-	var innerHTML='';
-	var N=this.rubik.N;
-	/*var w=15;
-	var h=15;
-	var ds=8;
-	var fd=15;
-	var fw=N*(w+ds);
-	var fh=N*(h+ds);
-	var i,j;
-	var a,b;
-	var obj;*/
-	/*if (width>0)
-	{
-		var dsp:Number=ds/w;
-		w=width/(4+4*dsp+N);
-		h=w;
-		ds=w*dsp;
-		fd=w;
-		fw=N*(w+ds);
-		fh=N*(h+ds);
-	}*/
-	var i,j;
-	var w=5;
-	var h=5;
-	var dd=3;
-	var ddd=5;
-	var xx,yy;
-	
-	//a=fw+fd;
-	//b=0;
-	var flat={top:[],bottom:[],front:[],back:[],left:[],right:[]};
-				
-	// top
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			obj=this.getFaceColorAndIndex("top",j,N-1-i);
-			flat.top[j+i*N]=obj.color.getHex();
-		}
-	}
-	// top
-	xx=N*(w+dd)+ddd;
-	yy=0;
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			innerHTML+=makecolorsquare(flat.top[i+(N-1-j)*N],w,h,(yy+i*(h+dd)),(xx+j*(w+dd)));
-		}
-	}
-	 
-	//a=0;
-	//b=fh+fd;
-	// left
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			obj=this.getFaceColorAndIndex("left",j,N-1-i);
-			flat.left[j+i*N]=obj.color.getHex();
-		}
-	}
-	// left
-	xx=0;
-	yy=N*(h+dd)+ddd;
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			innerHTML+=makecolorsquare(flat.left[i+(j)*N],w,h,(yy+i*(h+dd)),(xx+j*(w+dd)));
-		}
-	}
-	
-	//a=fw+fd;
-	//b=fh+fd;
-	// front
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			obj=this.getFaceColorAndIndex("front",j,N-1-i);
-			flat.front[j+i*N]=obj.color.getHex();
-		}
-	}
-	// front
-	xx=N*(w+dd)+ddd;
-	yy=N*(h+dd)+ddd;
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			innerHTML+=makecolorsquare(flat.front[i+(N-1-j)*N],w,h,(yy+i*(h+dd)),(xx+j*(w+dd)));
-		}
-	}
-	
-	//a=2*(fw+fd);
-	//b=fh+fd;
-	// right
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			obj=this.getFaceColorAndIndex("right",j,N-1-i);
-			flat.right[j+i*N]=obj.color.getHex();
-		}
-	}
-	// right
-	xx=2*(N*(w+dd)+ddd);
-	yy=N*(h+dd)+ddd;
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			innerHTML+=makecolorsquare(flat.right[i+(j)*N],w,h,(yy+i*(h+dd)),(xx+j*(w+dd)));
-		}
-	}
-	
-	//a=3*(fw+fd);
-	//b=fh+fd;
-	// back
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			obj=this.getFaceColorAndIndex("back",j,N-1-i);
-			flat.back[j+i*N]=obj.color.getHex();
-		}
-	}
-	// back
-	xx=3*(N*(w+dd)+ddd);
-	yy=N*(h+dd)+ddd;
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			innerHTML+=makecolorsquare(flat.back[i+(N-1-j)*N],w,h,(yy+i*(h+dd)),(xx+j*(w+dd)));
-		}
-	}
-	
-	//a=fw+fd;
-	//b=2*(fh+fd);
-	// bottom
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			obj=this.getFaceColorAndIndex("bottom",j,N-1-i);
-			flat.bottom[j+i*N]=obj.color.getHex();
-		}
-	}
-	// bottom
-	xx=N*(w+dd)+ddd;
-	yy=2*(N*(h+dd)+ddd);
-	for (i=0;i<N;i++)
-	{
-		for (j=0;j<N;j++)
-		{
-			innerHTML+=makecolorsquare(flat.bottom[i+(N-1-j)*N],w,h,(yy+i*(h+dd)),(xx+j*(w+dd)));
-		}
-	}
-	//callback.call(this,flat);
-	el.style.width=(((w+dd)*N+ddd)*4+10)+'px';
-	el.style.height=(((h+dd)*N+ddd)*3+10)+'px';
-	el.innerHTML=innerHTML;
-	return(flat);
-};
-
 

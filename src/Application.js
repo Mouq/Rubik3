@@ -15,21 +15,19 @@ function init(containerId) {
     cameraControls.addEventListener('change', render);
     
     scene = new THREE.Scene();
-	scene.add( cube() );
+    var c = cube();
+	scene.add( c);
 	
 	renderer = createRenderer(size);
     
 	document.getElementById(containerId).appendChild( renderer.domElement );
     
     animate();
+    c.rotate({axis:"y",row: 1, angle:-1, duration:1});
 }
 
 function cube() {
     return new Rubik('3x3x3'.value, 200, 0.3, buildCubelet);
-    var cubeMesh = new THREE.Mesh(
-        new THREE.CubeGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE),
-        new THREE.MeshBasicMaterial( {wireframe: true } ));
-    return cubeMesh;
 }
 
 function calcCanvasSize() {
