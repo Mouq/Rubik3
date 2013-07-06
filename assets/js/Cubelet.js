@@ -40,7 +40,6 @@ function faceMeshGen(faceGeometry) {
  **/
 function buildCubelet(position, cubeMetrics) {
     
-    console.log('called');
     var cubeletSize = cubeMetrics.cubeSize / cubeMetrics.cubeletCount.x;
     var mesh = faceMeshGen(new THREE.CubeGeometry( 1, cubeletSize - 5, cubeletSize - 5, 1, 1, 1 ));
     

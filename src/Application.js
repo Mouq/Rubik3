@@ -1,9 +1,11 @@
+var COLORS = {inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0x0000FF,front:0xFF0000,back:0x00FFFF}; // mutually complementary colors
+var CUBE_SIZE = 20;
+
 var camera;
 var cameraControls;
 var scene; 
 var renderer;
-var COLORS = {inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0x0000FF,front:0xFF0000,back:0x00FFFF}; // mutually complementary colors
-var CUBE_SIZE = 20;
+var cube;
 
 function init(containerId) {
 
@@ -12,21 +14,20 @@ function init(containerId) {
 	camera = new THREE.PerspectiveCamera( 45, size.ratio, 1, 4000 );
     camera.position.z = 500;
 	cameraControls = new THREE.OrbitControls( camera);
-    cameraControls.addEventListener('change', render);
+    // cameraControls.addEventListener('change', render);
     
     scene = new THREE.Scene();
-    var c = cube();
-	scene.add( c);
+    cube = createCube();
+	scene.add( cube);
 	
 	renderer = createRenderer(size);
     
 	document.getElementById(containerId).appendChild( renderer.domElement );
     
     animate();
-    c.rotate({axis:"y",row: 1, angle:-1, duration:1});
 }
 
-function cube() {
+function createCube() {
     return new Rubik('3x3x3'.value, 200, 0.3, buildCubelet);
 }
 
@@ -56,10 +57,11 @@ function animate() {
 	requestAnimationFrame( animate );
 
     cameraControls.update();
-
+    render();
 }
 
 function render() {
+    TWEEN.update();
 	renderer.render( scene, camera );
 }
 
