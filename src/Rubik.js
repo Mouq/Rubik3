@@ -157,7 +157,7 @@ Rubik.prototype.rotate=function(params)
 			default: return; break;
 		}
 		this.cubelet.matrixAutoUpdate = false;
-		this.cubelet.matrix.multiply(m,this.cubelet.matrix);
+		this.cubelet.matrix.multiplyMatrices(m,this.cubelet.matrix);
 		this.cubelet.position.getPositionFromMatrix(this.cubelet.matrix);
 		this.cubelet.matrixWorldNeedsUpdate = true;
 		this.prevangle=this.angle;
@@ -166,12 +166,19 @@ Rubik.prototype.rotate=function(params)
 	this.rotation_in_progress=true;
 	for (var k=0;k<ind.length;k++)
 	{
-		obj={cubelet:this.rubik.cubelets[ind[k]], axis:axis, angle:0, prevangle:0, thiss:this, params:params};
+		obj={
+            cubelet:this.rubik.cubelets[ind[k]], 
+            axis:axis, 
+            angle:0, 
+            prevangle:0, 
+            thiss:this, params:params
+            };
+            
 		new TWEEN.Tween( obj )
             .onUpdate(onChange)
             .onComplete(onComplete)
-            .to( {angle: angle*this.RA}, 2000 )
-            .easing( TWEEN.Easing.Elastic.InOut)
+            .to( {angle: angle*this.RA}, duration * angle * 1000 )
+            .easing( TWEEN.Easing.Cubic.InOut)
             .start();
 	}
 	params.angle=-angle;
