@@ -64,6 +64,22 @@ Rubik.prototype.addHistory=function(actionobj)
 		this.undolist.push(actionobj);
 	}
 };
+Rubik.prototype.getCubeletSeenCoords=function(cubelet)
+{
+    if (this.rubik==null || this.rotation_in_progress) return(null);
+	var c;
+	if (cubelet instanceof THREE.Mesh)
+		c=cubelet;
+	else
+		c=this.rubik.cubelets[cubelet];
+	c.matrixAutoUpdate = false;
+	c.updateMatrixWorld(true);
+	c.position.getPositionFromMatrix(c.matrix);
+	var cubeletseenas={xx:Math.round((c.position.x+this.rubik.side/2-this.rubik.cubeletside/2)/(this.rubik.cubeletside*(1+this.rubik.dsp))),
+						yy:Math.round((c.position.y+this.rubik.side/2-this.rubik.cubeletside/2)/(this.rubik.cubeletside*(1+this.rubik.dsp))),
+						zz:Math.round((c.position.z+this.rubik.side/2-this.rubik.cubeletside/2)/(this.rubik.cubeletside*(1+this.rubik.dsp)))};
+	return(cubeletseenas);
+};
 Rubik.prototype.getCubeletsIndex=function(axis,row){
 	if (this.rubik==null) return([]);
 	if (this.rotation_in_progress) return([]);
@@ -100,7 +116,75 @@ Rubik.prototype.getCubeletsIndex=function(axis,row){
 		result[i]=a[row*this.rubik.N*this.rubik.N+i][0];
 	return(result);
 };
-
+Rubik.prototype.decorateFacesAsSeen=function(cubelet)
+{
+    if (this.rubik==null || this.rotation_in_progress) return(null);
+	
+	var eq=function(a,b)
+	{
+		var delta=0;
+		var aa=new THREE.Vector3(Math.round(a.x),Math.round(a.y),Math.round(a.z));
+		var bb=new THREE.Vector3(Math.round(b.x),Math.round(b.y),Math.round(b.z));
+		
+		if (Math.abs(aa.x-bb.x)<=delta && Math.abs(aa.y-bb.y)<=delta && Math.abs(aa.z-bb.z)<=delta)
+			return(true);
+		return(false);
+	};
+	var c;
+	if (cubelet instanceof THREE.Mesh)
+		c=cubelet;
+	else
+		c=this.rubik.cubelets[cubelet];
+	var n=[];
+	c.matrixAutoUpdate = false;
+	c.updateMatrixWorld(true);
+	c.position.getPositionFromMatrix(c.matrix);
+	c.geometry.computeFaceNormals();
+	var m=c.matrix.clone();
+	m.setPosition(new THREE.Vector3(0,0,0));
+	for (var i=0;i<c.geometry.faces.length;i++)
+	{
+    	 n.push(c.geometry.faces[i].normal.clone().applyMatrix4(m).normalize());
+	}
+	var materials=c.geometry.materials;
+	var mat=null;
+	var matname="";
+	var r1=[],r2=[],r3=[],r4=[];
+    var direction;
+	for (var i=0;i<n.length;i++)
+	{
+			if (eq(n[i],new THREE.Vector3(0,1,0))) // face seen as top
+			{
+                c.geometry.faces[i].asseen = "top";
+			}
+			if (eq(n[i],new THREE.Vector3(0,-1,0))) // face seen as bottom
+			{
+                c.geometry.faces[i].asseen = "bottom";
+                direction = "bottom";
+			}
+			if (eq(n[i],new THREE.Vector3(0,0,1))) // face seen as front
+			{
+                c.geometry.faces[i].asseen = "front";
+                direction = "front";
+			}
+			if (eq(n[i],new THREE.Vector3(0,0,-1))) // face seen as back
+			{
+                c.geometry.faces[i].asseen = "back";
+                direction = "back";
+			}
+		// take left-right opposite due to papervision 3d left-right definition on cube etc..?? NO NO
+			if (eq(n[i],new THREE.Vector3(-1,0,0))) // face seen as left
+			{
+                c.geometry.faces[i].asseen = "left";
+                direction = "left";
+			}
+			if (eq(n[i],new THREE.Vector3(1,0,0))) // face seen as right
+			{
+                c.geometry.faces[i].asseen = "right";
+                direction = "right";
+			}
+	}
+};
 Rubik.prototype.rotate=function(params)
 {
 	if (this.rubik==null) return;

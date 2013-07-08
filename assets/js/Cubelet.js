@@ -75,6 +75,8 @@ function buildCubelet(position, cubeMetrics) {
 	}
 	
 	cubelet.overdraw = true;
+    
+    // TODO: move to rubik.js
 	cubelet.extra_data={xx:position.x ,yy:position.y,zz:position.z};
     
     return cubelet;
