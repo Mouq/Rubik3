@@ -3,6 +3,7 @@
 var COLORS = {inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0x0000FF,front:0xFF0000,back:0x00FFFF}; // mutually complementary colors
 var CUBE_SIZE = 20;
 
+var container;
 var canvasSize;
 var camera;
 var cameraControls;
@@ -11,11 +12,8 @@ var renderer;
 var cube;
 var projector;
 var raycaster;
-var mouse = new THREE.Vector2();
-var mouseX = 0;
-var mouseXOnMouseDown = 0;
-var mouseY = 0;
-var mouseYOnMouseDown = 0;
+var mousepx = new THREE.Vector2();
+var possibleRotation;
 
 function init(containerId) {
 
@@ -34,8 +32,9 @@ function init(containerId) {
 	
 	renderer = createRenderer(canvasSize);
 
-    var container = document.getElementById(containerId);
-	container.addEventListener( 'click', onDocumentMouseDown, false );
+    container = document.getElementById(containerId);
+	container.addEventListener( 'mousedown', onDocumentMouseDown, false );
+    container.addEventListener( 'mouseup', onDocumentMouseUp, false );
     container.appendChild( renderer.domElement );
     
     animate();
@@ -82,24 +81,77 @@ function render() {
 }
 
 function onDocumentMouseDown( event ) {
+    mousepx = getMousePositionPx(event);
 
 	event.preventDefault();
     
 	var target=getCubelet(event);
+    if (target==null) return;
     cube.decorateFacesAsSeen(target.cubelet);
-	if (target==null) return;
-    console.log(target.face.asseen);
 	var cubeletseenas=cube.getCubeletSeenCoords(target.cubelet);
-    console.log(cubeletseenas);
+    // console.log(target.face.asseen);
+    // console.log(cubeletseenas);
 	
-	// container.addEventListener( 'mouseup', onDocumentMouseUp, false );
-	// container.addEventListener( 'mouseout', onDocumentMouseOut, false );
+    possibleRotation = calculateRotation(cubeletseenas, target.face.asseen);
+}
+// TODO: finish
+function calculateRotation(cubeletseenas, faceasseen) {
+    if (cubeletseenas.xx == 1 && cubeletseenas.yy == 1) {
+        return null;
+    }
+    if (cubeletseenas.yy == 1 && cubeletseenas.zz == 1) {
+        return null;
+    }
+    if (cubeletseenas.zz == 1 && cubeletseenas.xx == 1) {
+        return null;
+    }
+    if (cubeletseenas.xx == 1) {
+        console.log(faceasseen)
+        if (faceasseen == 'front') {
+            return {axis: 'x', row: 1, angle: cubeletseenas.yy == 0? 1: -1};
+        }
+        return {axis: 'x', row: 1, angle: 1};
+    }
+    if (cubeletseenas.yy == 1) {
+        return {axis: 'y', row: 1, angle: 1};
+    }
+    if (cubeletseenas.zz == 1) {
+        return {axis: 'z', row: 1, angle: 1};
+    }
+    return null;
+    
+}
+
+function onDocumentMouseUp( event ) {
+    var newMousePx = getMousePositionPx(event);
+    if (!possibleRotation) {
+        return;
+    }
+    
+    if (newMousePx.sub(mousepx).length() < 10.0) {
+        possibleRotation.duration = 0.3;
+        cube.rotate(possibleRotation);
+    }
+    possibleRotation = null;
+}
+
+function getMousePosition(event) {
+    return new THREE.Vector2(
+        ( event.clientX / canvasSize.width ) * 2 - 1,
+        - ( event.clientY / canvasSize.height ) * 2 + 1
+        );
+}
+
+function getMousePositionPx(event) {
+    return new THREE.Vector2(
+        event.clientX,
+        event.clientY);
 }
 
 function getCubelet(event)
 {
-	mouse.x = ( event.clientX / canvasSize.width ) * 2 - 1;
-	mouse.y = - ( event.clientY / canvasSize.height ) * 2 + 1;
+    var mouse = getMousePosition(event);
+    // console.log(mouse);
     
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
 	projector.unprojectVector( vector, camera );

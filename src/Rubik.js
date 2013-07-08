@@ -261,7 +261,7 @@ Rubik.prototype.rotate=function(params)
 		new TWEEN.Tween( obj )
             .onUpdate(onChange)
             .onComplete(onComplete)
-            .to( {angle: angle*this.RA}, duration * angle * 1000 )
+            .to( {angle: angle*this.RA}, duration * Math.abs(angle) * 1000 )
             .easing( TWEEN.Easing.Cubic.InOut)
             .start();
 	}
