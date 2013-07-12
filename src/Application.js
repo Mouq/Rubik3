@@ -98,17 +98,17 @@ function onDocumentMouseDown( event ) {
 function calculateRotation(cubeletseenas, faceasseen) {
     console.log(faceasseen)
     if (cubeletseenas.xx == 1 && cubeletseenas.yy == 1) {
-        return null;
+        return { axis: 'z', row: cubeletseenas.zz, angle: cubeletseenas.zz? -1: 1 };
     }
     if (cubeletseenas.yy == 1 && cubeletseenas.zz == 1) {
-        return null;
+        return { axis: 'x', row: cubeletseenas.xx, angle: cubeletseenas.xx? -1: 1 };
     }
     if (cubeletseenas.zz == 1 && cubeletseenas.xx == 1) {
-        return null;
+        return { axis: 'y', row: cubeletseenas.yy, angle: cubeletseenas.yy? -1: 1 };
     }
     var r = {};
     console.log(cubeletseenas.xx + " " + cubeletseenas.yy + " " + cubeletseenas.zz);
-    if (cubeletseenas.xx == 1 || (cubeletseenas.yy != 1 && cubeletseenas.zz != 1 && faceasseen != 'left' && faceasseen != 'right' ) ) {
+    if (cubeletseenas.xx == 1) {
         r.row = cubeletseenas.xx;
         r.axis = 'x';
         r.angle = boolToInt(
@@ -119,7 +119,7 @@ function calculateRotation(cubeletseenas, faceasseen) {
         
         return r;
     }
-    else if (cubeletseenas.yy == 1 || (cubeletseenas.zz != 1 && cubeletseenas.xx != 1 && faceasseen != 'top' && faceasseen != 'bottom' ) ) {
+    else if (cubeletseenas.yy == 1) {
         r.row = cubeletseenas.yy;
         r.axis = 'y';
         r.angle = boolToInt(
@@ -130,7 +130,7 @@ function calculateRotation(cubeletseenas, faceasseen) {
         
         return r;
     }
-    else if (cubeletseenas.zz == 1 || (cubeletseenas.xx != 1 && cubeletseenas.yy != 1 && faceasseen != 'front' && faceasseen != 'back' ) ) {
+    else if (cubeletseenas.zz == 1 ) {
         r.row = cubeletseenas.zz;
         r.axis = 'z';
         r.angle = boolToInt(
