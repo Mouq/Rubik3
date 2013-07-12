@@ -96,6 +96,7 @@ function onDocumentMouseDown( event ) {
 }
 // TODO: finish
 function calculateRotation(cubeletseenas, faceasseen) {
+    console.log(faceasseen)
     if (cubeletseenas.xx == 1 && cubeletseenas.yy == 1) {
         return null;
     }
@@ -105,23 +106,48 @@ function calculateRotation(cubeletseenas, faceasseen) {
     if (cubeletseenas.zz == 1 && cubeletseenas.xx == 1) {
         return null;
     }
-    if (cubeletseenas.xx == 1) {
-        console.log(faceasseen)
-        if (faceasseen == 'front') {
-            return {axis: 'x', row: 1, angle: cubeletseenas.yy == 0? 1: -1};
-        }
-        return {axis: 'x', row: 1, angle: 1};
+    var r = {};
+    console.log(cubeletseenas.xx + " " + cubeletseenas.yy + " " + cubeletseenas.zz);
+    if (cubeletseenas.xx == 1 || (cubeletseenas.yy != 1 && cubeletseenas.zz != 1 && faceasseen != 'left' && faceasseen != 'right' ) ) {
+        r.row = cubeletseenas.xx;
+        r.axis = 'x';
+        r.angle = boolToInt(
+            ( faceasseen == 'front' && cubeletseenas.yy === 0 ) ||
+            ( faceasseen == 'back' && cubeletseenas.yy !== 0 ) ||
+            ( faceasseen == 'top' && cubeletseenas.zz !== 0 ) ||
+            ( faceasseen == 'bottom' && cubeletseenas.zz === 0 ));
+        
+        return r;
     }
-    if (cubeletseenas.yy == 1) {
-        return {axis: 'y', row: 1, angle: 1};
+    else if (cubeletseenas.yy == 1 || (cubeletseenas.zz != 1 && cubeletseenas.xx != 1 && faceasseen != 'top' && faceasseen != 'bottom' ) ) {
+        r.row = cubeletseenas.yy;
+        r.axis = 'y';
+        r.angle = boolToInt(
+            ( faceasseen == 'left' && cubeletseenas.zz !== 0 ) ||
+            ( faceasseen == 'right' && cubeletseenas.zz === 0 ) ||
+            ( faceasseen == 'front' && cubeletseenas.xx !== 0 ) ||
+            ( faceasseen == 'back' && cubeletseenas.xx === 0 ));
+        
+        return r;
     }
-    if (cubeletseenas.zz == 1) {
-        return {axis: 'z', row: 1, angle: 1};
+    else if (cubeletseenas.zz == 1 || (cubeletseenas.xx != 1 && cubeletseenas.yy != 1 && faceasseen != 'front' && faceasseen != 'back' ) ) {
+        r.row = cubeletseenas.zz;
+        r.axis = 'z';
+        r.angle = boolToInt(
+            ( faceasseen == 'top' && cubeletseenas.xx === 0 ) ||
+            ( faceasseen == 'bottom' && cubeletseenas.xx !== 0 ) ||
+            ( faceasseen == 'left' && cubeletseenas.yy === 0 ) ||
+            ( faceasseen == 'right' && cubeletseenas.yy !== 0 ));
+        
+        return r;
     }
     return null;
     
 }
 
+function boolToInt(b) {
+    return b? 1: -1;
+}
 function onDocumentMouseUp( event ) {
     var newMousePx = getMousePositionPx(event);
     if (!possibleRotation) {
