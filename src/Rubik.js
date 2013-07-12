@@ -1,10 +1,13 @@
+/*global THREE TWEEN */
 var Rubik=function(Np,sidep,dspp, cubeletFactory)
 {
     THREE.Object3D.call(this);
-	// public properties
+    this.RA=Math.PI*0.5;
+    this.AXES = ['x', 'y', 'z'];
+    
 	this.rubik=null;
 	this.rotation_in_progress=false;
-	this.RA=Math.PI*0.5;
+	this.scramble_in_progress=false;
 	this.undolist=[];
 	this.undo_in_action=false;
 	this.undolist_length=200;
@@ -185,7 +188,7 @@ Rubik.prototype.decorateFacesAsSeen=function(cubelet)
 			}
 	}
 };
-Rubik.prototype.rotate=function(params)
+Rubik.prototype.rotate=function(params, callback) 
 {
 	if (this.rubik==null) return;
 	if (this.rotation_in_progress) return;
@@ -220,6 +223,9 @@ Rubik.prototype.rotate=function(params)
 				this.params.onComplete.call(this.thiss);
 			if (this.thiss.onChange!=null)
 				this.thiss.onChange.call(this.thiss);
+            if (callback) {
+                callback(params);
+            }
 		}
 	};
 
@@ -269,4 +275,26 @@ Rubik.prototype.rotate=function(params)
 	//params.onComplete=null;
 	this.addHistory({func:this.rotate, param:params, actiontype:"rotate"});
 };
-
+Rubik.prototype.scramble=function(rotationNum) {
+    this.scramble_in_progress = true;
+    var rotations = [];
+    var thiss=this;
+    for (var i = 0; i < rotationNum; i++) {
+        var axisIdx = Math.floor(Math.random() * 3);
+        var row = Math.floor(Math.random() * 3);
+        var angle = Math.floor(Math.random() * 2);
+        angle = angle? angle: -1; 
+        rotations.push({ axis: this.AXES[axisIdx], row: row, angle: angle, duration: 0.2});
+    }
+    var recurRotate = function(i) {
+        if (i == rotations.length) {
+            this.scramble_in_progress = false;
+        } else {
+            console.log(rotations[i]);
+            thiss.rotate(rotations[i], function(params) {
+                recurRotate(i + 1);
+            });        
+        }
+    }
+    recurRotate(0);
+}
