@@ -46,8 +46,8 @@ function createCube() {
 
 function calcCanvasSize() {
     var  size =  {
-        width: $(window).width() - 5,
-        height: $(window).height() - 5
+        width: window.innerWidth,
+        height: window.innerHeight
     };
     size.ratio = size.width / size.height;
     return size;    
