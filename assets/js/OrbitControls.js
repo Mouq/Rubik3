@@ -244,6 +244,42 @@ THREE.OrbitControls = function ( object, domElement ) {
 		document.addEventListener( 'mouseup', onMouseUp, false );
 
 	}
+    
+    function onDocumentTouchStart( event ) {
+
+    	if ( scope.enabled === false ) return;
+		if ( scope.userRotate === false ) return;
+
+		if ( event.touches.length == 1 ) {
+
+			event.preventDefault();
+
+    		state = STATE.ROTATE;
+
+			rotateStart.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+		}
+	}
+    
+    function onDocumentTouchMove( event ) {
+
+        if ( scope.enabled === false ) return;
+		if ( scope.userRotate === false ) return;
+
+        if ( event.touches.length == 1 ) {
+
+			event.preventDefault();
+
+    		rotateEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+			rotateDelta.subVectors( rotateEnd, rotateStart );
+
+			scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
+			scope.rotateUp( 2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed );
+
+			rotateStart.copy( rotateEnd );
+
+		}
+    }
+
 
 	function onMouseMove( event ) {
 
@@ -358,7 +394,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
 	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
 	this.domElement.addEventListener( 'keydown', onKeyDown, false );
-
+    this.domElement.addEventListener( 'touchstart', onDocumentTouchStart, false );
+    this.domElement.addEventListener( 'touchmove', onDocumentTouchMove, false );
 };
 
 THREE.OrbitControls.prototype = Object.create( THREE.EventDispatcher.prototype );
