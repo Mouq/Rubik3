@@ -32,7 +32,9 @@ function init(containerId) {
 	
 	renderer = createRenderer(canvasSize);
 
-    container = document.getElementById(containerId);
+    container = document.createElement('div');
+    document.body.appendChild(container);
+
 	container.addEventListener( 'mousedown', onDocumentMouseDown, false );
     container.addEventListener( 'mouseup', onDocumentMouseUp, false );
     container.appendChild( renderer.domElement );
