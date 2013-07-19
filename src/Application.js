@@ -35,9 +35,11 @@ function init(containerId) {
     container = document.createElement('div');
     document.body.appendChild(container);
 
-	container.addEventListener( 'mousedown', onEngageStart, false );
+	// container.addEventListener( 'mousedown', onEngageStart, false );
 	container.addEventListener( 'touchstart', onEngageStart, false );
-    container.addEventListener( 'mouseup', onEngageEnd, false );
+	// container.addEventListener( 'mousemove', onEngageContinue, false );
+	container.addEventListener( 'touchmove', onEngageContinue, false );
+    // container.addEventListener( 'mouseup', onEngageEnd, false );
     container.addEventListener( 'touchend', onEngageEnd, false );
     container.appendChild( renderer.domElement );
     
@@ -151,17 +153,26 @@ function onEngageStart( event ) {
     possibleRotation = calculateRotation(cubeletseenas, target.face.asseen);
 }
 
-function onEngageEnd( event ) {
+function onEngageContinue( event ) {
     var newMousePx = getEventPosition(event);
-    if (!possibleRotation) {
+    if (newMousePx == null) {
         return;
     }
     
-    if (newMousePx.sub(mousepx).length() < 10.0) {
+    if (newMousePx.sub(mousepx).length() > 10.0) {
+        possibleRotation = null;
+        return;
+    }
+
+}
+
+function onEngageEnd( event ) {
+
+    if (possibleRotation) {
         possibleRotation.duration = 0.3;
         cube.rotate(possibleRotation);
+        possibleRotation = null;
     }
-    possibleRotation = null;
 }
 
 function getNormalizedEventPosition(event) {
