@@ -290,7 +290,6 @@ Rubik.prototype.scramble=function(rotationNum) {
         if (i == rotations.length) {
             this.scramble_in_progress = false;
         } else {
-            console.log(rotations[i]);
             thiss.rotate(rotations[i], function(params) {
                 recurRotate(i + 1);
             });        

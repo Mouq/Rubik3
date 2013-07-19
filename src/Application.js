@@ -4,7 +4,7 @@ var COLORS = {inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0
 var CUBE_SIZE = 20;
 
 var container;
-var canvasSize;
+var windowSize;
 var camera;
 var cameraControls;
 var scene; 
@@ -17,9 +17,9 @@ var possibleRotation;
 
 function init(containerId) {
 
-    canvasSize = calcCanvasSize();
+    windowSize = calcWindowSize();
     
-	camera = new THREE.PerspectiveCamera( 45, canvasSize.ratio, 1, 4000 );
+	camera = new THREE.PerspectiveCamera( 45, windowSize.ratio, 1, 4000 );
     camera.position.z = 500;
 	cameraControls = new THREE.OrbitControls( camera);
     
@@ -30,13 +30,15 @@ function init(containerId) {
     cube = createCube();
 	scene.add( cube);
 	
-	renderer = createRenderer(canvasSize);
+	renderer = createRenderer(windowSize);
 
     container = document.createElement('div');
     document.body.appendChild(container);
 
-	container.addEventListener( 'mousedown', onDocumentMouseDown, false );
-    container.addEventListener( 'mouseup', onDocumentMouseUp, false );
+	container.addEventListener( 'mousedown', onEngageStart, false );
+	container.addEventListener( 'touchstart', onEngageStart, false );
+    container.addEventListener( 'mouseup', onEngageEnd, false );
+    container.addEventListener( 'touchend', onEngageEnd, false );
     container.appendChild( renderer.domElement );
     
     animate();
@@ -46,7 +48,7 @@ function createCube() {
     return new Rubik('3x3x3'.value, 200, 0.3, buildCubelet);
 }
 
-function calcCanvasSize() {
+function calcWindowSize() {
     var  size =  {
         width: window.innerWidth,
         height: window.innerHeight
@@ -82,23 +84,7 @@ function render() {
 	renderer.render( scene, camera );
 }
 
-function onDocumentMouseDown( event ) {
-    mousepx = getMousePositionPx(event);
-
-	event.preventDefault();
-    
-	var target=getCubelet(event);
-    if (target==null) return;
-    cube.decorateFacesAsSeen(target.cubelet);
-	var cubeletseenas=cube.getCubeletSeenCoords(target.cubelet);
-    // console.log(target.face.asseen);
-    // console.log(cubeletseenas);
-	
-    possibleRotation = calculateRotation(cubeletseenas, target.face.asseen);
-}
-// TODO: finish
 function calculateRotation(cubeletseenas, faceasseen) {
-    console.log(faceasseen)
     if (cubeletseenas.xx == 1 && cubeletseenas.yy == 1) {
         return { axis: 'z', row: cubeletseenas.zz, angle: cubeletseenas.zz? -1: 1 };
     }
@@ -109,7 +95,6 @@ function calculateRotation(cubeletseenas, faceasseen) {
         return { axis: 'y', row: cubeletseenas.yy, angle: cubeletseenas.yy? -1: 1 };
     }
     var r = {};
-    console.log(cubeletseenas.xx + " " + cubeletseenas.yy + " " + cubeletseenas.zz);
     if (cubeletseenas.xx == 1) {
         r.row = cubeletseenas.xx;
         r.axis = 'x';
@@ -150,8 +135,24 @@ function calculateRotation(cubeletseenas, faceasseen) {
 function boolToInt(b) {
     return b? 1: -1;
 }
-function onDocumentMouseUp( event ) {
-    var newMousePx = getMousePositionPx(event);
+
+function onEngageStart( event ) {
+    mousepx = getEventPosition(event);
+
+    event.preventDefault();
+    
+	var target=getCubelet(event);
+    if (target==null) return;
+    cube.decorateFacesAsSeen(target.cubelet);
+	var cubeletseenas=cube.getCubeletSeenCoords(target.cubelet);
+    // console.log(target.face.asseen);
+    // console.log(cubeletseenas);
+	
+    possibleRotation = calculateRotation(cubeletseenas, target.face.asseen);
+}
+
+function onEngageEnd( event ) {
+    var newMousePx = getEventPosition(event);
     if (!possibleRotation) {
         return;
     }
@@ -163,22 +164,25 @@ function onDocumentMouseUp( event ) {
     possibleRotation = null;
 }
 
-function getMousePosition(event) {
-    return new THREE.Vector2(
-        ( event.clientX / canvasSize.width ) * 2 - 1,
-        - ( event.clientY / canvasSize.height ) * 2 + 1
-        );
+function getNormalizedEventPosition(event) {
+    
+    var pos = getEventPosition(event);
+    pos.x = ( pos.x / windowSize.width ) * 2 - 1;
+    pos.y = - ( pos.y / windowSize.height ) * 2 + 1;
+    return pos;
 }
 
-function getMousePositionPx(event) {
-    return new THREE.Vector2(
-        event.clientX,
-        event.clientY);
+function getEventPosition(event) {
+    if (event.type == 'mousedown' || event.type == 'mouseup' || event.type == 'mousemove') {
+        return new THREE.Vector2(event.clientX, event.clientY);
+    } else if (event.type == 'touchstart' || event.type == 'touchend' || event.type == 'touchmove') {
+        return new THREE.Vector2(event.touches[ 0 ].pageX, event.touches[ 0 ].pageY);
+    }
 }
 
 function getCubelet(event)
 {
-    var mouse = getMousePosition(event);
+    var mouse = getNormalizedEventPosition(event);
     // console.log(mouse);
     
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
