@@ -41,7 +41,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var scope = this;
 
 	var EPS = 0.000001;
-	var PIXELS_PER_ROUND = 1800;
+	var PIXELS_PER_ROUND = 900;
 
 	var rotateStart = new THREE.Vector2();
 	var rotateEnd = new THREE.Vector2();

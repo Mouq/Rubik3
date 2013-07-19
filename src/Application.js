@@ -35,11 +35,11 @@ function init(containerId) {
     container = document.createElement('div');
     document.body.appendChild(container);
 
-	// container.addEventListener( 'mousedown', onEngageStart, false );
+	container.addEventListener( 'mousedown', onEngageStart, false );
 	container.addEventListener( 'touchstart', onEngageStart, false );
-	// container.addEventListener( 'mousemove', onEngageContinue, false );
+	container.addEventListener( 'mousemove', onEngageContinue, false );
 	container.addEventListener( 'touchmove', onEngageContinue, false );
-    // container.addEventListener( 'mouseup', onEngageEnd, false );
+    container.addEventListener( 'mouseup', onEngageEnd, false );
     container.addEventListener( 'touchend', onEngageEnd, false );
     container.appendChild( renderer.domElement );
     
