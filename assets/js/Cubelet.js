@@ -21,7 +21,8 @@ function moveAlongZ(distance) {
 function faceMesh(faceGeometry, color, rotation, trnslation) {
     var mesh = new THREE.Mesh( 
         faceGeometry, 
-        new THREE.MeshLambertMaterial( { color: color, shading: THREE.SmoothShading }));
+        new THREE.MeshPhongMaterial( { color: color, specular: 0xffffff, emissive: 0x000000, 
+        ambient: 0x000000, shininess: 20, shading: THREE.SmoothShading, opacity: 1.0, transparent: false } ));
     if (rotation) {
         mesh.rotation = rotation;
     }
@@ -48,7 +49,7 @@ function buildCubelet(position, cubeMetrics) {
     var mesh = faceMeshGen(new THREE.CubeGeometry( 1, cubeletSizeReduced, cubeletSizeReduced, 1, 1, 1 ));
     
     var cubelet = mainBlock(cubeletSize, new THREE.MeshPhongMaterial( { color: 0x000000, specular: 0xffffff, emissive: 0x000000, 
-        ambient: 0x000000, shininess: 20, shading: THREE.SmoothShading, opacity: 0.9, transparent: false } ));
+        ambient: 0x000000, shininess: 20, shading: THREE.SmoothShading, opacity: 1.0, transparent: false } ));
     // var cubelet = mainBlock(cubeletSize, new THREE.MeshLambertMaterial( { color: 0x5F5F5F, shading: THREE.SmoothShading }));
     // var cubelet =new THREE.Mesh( 
     //     new THREE.CubeGeometry( cubeletSize, cubeletSize, cubeletSize, 1, 1, 1 ), 
