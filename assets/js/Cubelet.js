@@ -1,7 +1,10 @@
+/*global THREE */
 
 var ROTATE_90_AROUND_X = new THREE.Vector3(Math.PI / 180 * 90, 0, 0);
 var ROTATE_90_AROUND_Y = new THREE.Vector3(0, Math.PI / 180 * 90, 0);
 var ROTATE_90_AROUND_Z = new THREE.Vector3(0, 0, Math.PI / 180 * 90);
+
+var BEVEL_RADIUS_PERC = 0.05;
 
 function moveAlongX(distance) {
     return new THREE.Vector3(distance, 0, 0);
@@ -18,7 +21,7 @@ function moveAlongZ(distance) {
 function faceMesh(faceGeometry, color, rotation, trnslation) {
     var mesh = new THREE.Mesh( 
         faceGeometry, 
-        new THREE.MeshBasicMaterial( { color: color }));
+        new THREE.MeshLambertMaterial( { color: color, shading: THREE.SmoothShading }));
     if (rotation) {
         mesh.rotation = rotation;
     }
@@ -41,14 +44,14 @@ function faceMeshGen(faceGeometry) {
 function buildCubelet(position, cubeMetrics) {
     
     var cubeletSize = cubeMetrics.cubeSize / cubeMetrics.cubeletCount.x;
-    var mesh = faceMeshGen(new THREE.CubeGeometry( 1, cubeletSize - 5, cubeletSize - 5, 1, 1, 1 ));
+    var mesh = faceMeshGen(new THREE.CubeGeometry( 1, cubeletSize * (1 - BEVEL_RADIUS_PERC * 2), cubeletSize  * (1 - BEVEL_RADIUS_PERC * 2), 1, 1, 1 ));
     
-    var cubelet =new THREE.Mesh( 
-        new THREE.CubeGeometry( cubeletSize, cubeletSize, cubeletSize, 1, 1, 1 ), 
-        new THREE.MeshBasicMaterial( { color: 0x5F5F5F }) );
+    var cubelet = mainBlock(cubeletSize, new THREE.MeshLambertMaterial( { color: 0x5F5F5F, shading: THREE.SmoothShading }));
+    // var cubelet =new THREE.Mesh( 
+    //     new THREE.CubeGeometry( cubeletSize, cubeletSize, cubeletSize, 1, 1, 1 ), 
+    //     new THREE.MeshLambertMaterial( { color: 0x5F5F5F, shading: THREE.SmoothShading }) );
     
-    var color;
-	// color external faces
+    
 	if (position.y == 0)
 	{
         cubelet.add(mesh(COLORS.bottom, ROTATE_90_AROUND_Z, moveAlongY( -cubeletSize / 2)));
@@ -81,3 +84,67 @@ function buildCubelet(position, cubeMetrics) {
     
     return cubelet;
 }
+
+function mainBlock(cubeletSize, material) {
+        
+    var bevelRadius = cubeletSize * BEVEL_RADIUS_PERC;
+    var block =new THREE.Mesh( 
+        new THREE.CubeGeometry( cubeletSize - bevelRadius * 2, cubeletSize - bevelRadius * 2, cubeletSize - bevelRadius * 2, 1, 1, 1 ), 
+        material );
+        
+    var sphere = new THREE.SphereGeometry(bevelRadius, 16, 12);    
+    for (var i = -1; i < 2; i += 2) {
+        for (var j = -1; j < 2; j += 2) {
+            for (var k = -1; k < 2; k += 2) {
+                var cornerBall = new THREE.Mesh(sphere, 
+                    material);
+                cornerBall.position.x  = i * (cubeletSize / 2 - bevelRadius);
+                cornerBall.position.y  = j * (cubeletSize / 2 - bevelRadius);
+                cornerBall.position.z  = k * (cubeletSize / 2 - bevelRadius);
+                block.add(cornerBall);
+            }
+        }
+    }
+        
+    var cyl = new THREE.CylinderGeometry(bevelRadius, bevelRadius, cubeletSize - bevelRadius * 2, 16);
+    for (var i = -1; i < 2; i += 2) {
+        for (var j = -1; j < 2; j += 2) {
+            
+            var edgeCyl = new THREE.Mesh(cyl, 
+                material);
+            edgeCyl.position.x  = i * (cubeletSize / 2 - bevelRadius);
+            edgeCyl.position.z  = j * (cubeletSize / 2 - bevelRadius);
+            block.add(edgeCyl);
+            
+            edgeCyl = new THREE.Mesh(cyl, 
+                material);
+            edgeCyl.rotation.x = Math.PI / 2;    
+            edgeCyl.position.y  = i * (cubeletSize / 2 - bevelRadius);
+            edgeCyl.position.x  = j * (cubeletSize / 2 - bevelRadius);
+            block.add(edgeCyl);
+            
+            edgeCyl = new THREE.Mesh(cyl, 
+                material);
+            edgeCyl.rotation.z = Math.PI / 2;    
+            edgeCyl.position.y  = i * (cubeletSize / 2 - bevelRadius);
+            edgeCyl.position.z  = j * (cubeletSize / 2 - bevelRadius);
+            block.add(edgeCyl);
+        }
+    }
+
+    var box = new THREE.CubeGeometry( cubeletSize - bevelRadius * 2, cubeletSize - bevelRadius * 2, cubeletSize, 1, 1, 1 );
+    var twoFaces = new THREE.Mesh(box, material);
+    block.add(twoFaces);
+    twoFaces = new THREE.Mesh(box, material);
+    twoFaces.rotation.y = Math.PI / 2;
+    block.add(twoFaces);
+    twoFaces = new THREE.Mesh(box, material);
+    twoFaces.rotation.x = Math.PI / 2;
+    block.add(twoFaces);
+    
+    return block;
+    
+}
+
+
+

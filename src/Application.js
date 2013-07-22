@@ -29,6 +29,11 @@ function init(containerId) {
     scene = new THREE.Scene();
     cube = createCube();
 	scene.add( cube);
+	// scene.add( mainBlock(200, new THREE.MeshLambertMaterial( { color: 0x5F5F5F, shading: THREE.SmoothShading })));
+    
+    scene.add(directionalLight(1, 2, 3, 1.0));
+    scene.add(directionalLight(-1, -2, -3, 0.5));
+    // scene.add(new THREE.AmbientLight(0x0a0a0a));
 	
 	renderer = createRenderer(windowSize);
 
@@ -44,6 +49,12 @@ function init(containerId) {
     container.appendChild( renderer.domElement );
     
     animate();
+}
+
+function directionalLight(x, y, z, intensity) {
+    var dl = new THREE.DirectionalLight(0xffffff, intensity);
+    dl.position = new THREE.Vector3(x, y, z);
+    return dl;
 }
 
 function createCube() {
@@ -86,6 +97,7 @@ function render() {
 	renderer.render( scene, camera );
 }
 
+// TODO: when a corner cubelet is clicked, rotate counterclockwise
 function calculateRotation(cubeletseenas, faceasseen) {
     if (cubeletseenas.xx == 1 && cubeletseenas.yy == 1) {
         return { axis: 'z', row: cubeletseenas.zz, angle: cubeletseenas.zz? -1: 1 };
