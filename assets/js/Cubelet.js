@@ -44,9 +44,12 @@ function faceMeshGen(faceGeometry) {
 function buildCubelet(position, cubeMetrics) {
     
     var cubeletSize = cubeMetrics.cubeSize / cubeMetrics.cubeletCount.x;
-    var mesh = faceMeshGen(new THREE.CubeGeometry( 1, cubeletSize * (1 - BEVEL_RADIUS_PERC * 2), cubeletSize  * (1 - BEVEL_RADIUS_PERC * 2), 1, 1, 1 ));
+    var cubeletSizeReduced = cubeletSize * (1 - BEVEL_RADIUS_PERC * 2);
+    var mesh = faceMeshGen(new THREE.CubeGeometry( 1, cubeletSizeReduced, cubeletSizeReduced, 1, 1, 1 ));
     
-    var cubelet = mainBlock(cubeletSize, new THREE.MeshLambertMaterial( { color: 0x5F5F5F, shading: THREE.SmoothShading }));
+    var cubelet = mainBlock(cubeletSize, new THREE.MeshPhongMaterial( { color: 0x000000, specular: 0xffffff, emissive: 0x000000, 
+        ambient: 0x000000, shininess: 20, shading: THREE.SmoothShading, opacity: 0.9, transparent: false } ));
+    // var cubelet = mainBlock(cubeletSize, new THREE.MeshLambertMaterial( { color: 0x5F5F5F, shading: THREE.SmoothShading }));
     // var cubelet =new THREE.Mesh( 
     //     new THREE.CubeGeometry( cubeletSize, cubeletSize, cubeletSize, 1, 1, 1 ), 
     //     new THREE.MeshLambertMaterial( { color: 0x5F5F5F, shading: THREE.SmoothShading }) );
@@ -54,27 +57,27 @@ function buildCubelet(position, cubeMetrics) {
     
 	if (position.y == 0)
 	{
-        cubelet.add(mesh(COLORS.bottom, ROTATE_90_AROUND_Z, moveAlongY( -cubeletSize / 2)));
+        cubelet.add(mesh(COLORS.bottom, ROTATE_90_AROUND_Z, moveAlongY( -cubeletSize / 2 + 1/2)));
 	}
 	if (position.y==cubeMetrics.cubeletCount.y-1)
 	{
-        cubelet.add(mesh(COLORS.top, ROTATE_90_AROUND_Z, moveAlongY( cubeletSize / 2)));
+        cubelet.add(mesh(COLORS.top, ROTATE_90_AROUND_Z, moveAlongY( cubeletSize / 2 - 1/2)));
 	}
 	if (position.x ==cubeMetrics.cubeletCount.x-1)
 	{
-        cubelet.add(mesh(COLORS.right, undefined, moveAlongX( cubeletSize / 2)));
+        cubelet.add(mesh(COLORS.right, undefined, moveAlongX( cubeletSize / 2 - 1/2)));
 	}
 	if (position.x==0)
 	{
-        cubelet.add(mesh(COLORS.left, undefined, moveAlongX( -cubeletSize / 2)));
+        cubelet.add(mesh(COLORS.left, undefined, moveAlongX( -cubeletSize / 2 + 1/2)));
 	}
 	if (position.z==cubeMetrics.cubeletCount.z-1)
 	{
-        cubelet.add(mesh(COLORS.front, ROTATE_90_AROUND_Y, moveAlongZ( cubeletSize / 2)));
+        cubelet.add(mesh(COLORS.front, ROTATE_90_AROUND_Y, moveAlongZ( cubeletSize / 2 - 1/2)));
 	}
 	if (position.z==0)
 	{
-        cubelet.add(mesh(COLORS.back, ROTATE_90_AROUND_Y, moveAlongZ( -cubeletSize / 2)));
+        cubelet.add(mesh(COLORS.back, ROTATE_90_AROUND_Y, moveAlongZ( -cubeletSize / 2 + 1/2)));
 	}
 	
 	cubelet.overdraw = true;
@@ -132,15 +135,6 @@ function mainBlock(cubeletSize, material) {
         }
     }
 
-    var box = new THREE.CubeGeometry( cubeletSize - bevelRadius * 2, cubeletSize - bevelRadius * 2, cubeletSize, 1, 1, 1 );
-    var twoFaces = new THREE.Mesh(box, material);
-    block.add(twoFaces);
-    twoFaces = new THREE.Mesh(box, material);
-    twoFaces.rotation.y = Math.PI / 2;
-    block.add(twoFaces);
-    twoFaces = new THREE.Mesh(box, material);
-    twoFaces.rotation.x = Math.PI / 2;
-    block.add(twoFaces);
     
     return block;
     
