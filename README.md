@@ -1,5 +1,6 @@
 Rubik3
 ======
 
-Trying to adapt the original Rubik3 code to Firefox OS
+Attempt to fit the original Rubik cube from https://github.com/foo123/Rubik3 into
+a Firefox OS phone.
 
