@@ -107,47 +107,51 @@ function render() {
 }
 
 // TODO: when a corner cubelet is clicked, rotate counterclockwise
-function calculateRotation(cubeletseenas, faceasseen) {
+function calculateRotation(cubeletseenas, faceasseen, ccw) {
     if (cubeletseenas.xx == 1 && cubeletseenas.yy == 1) {
-        return { axis: 'z', row: cubeletseenas.zz, angle: cubeletseenas.zz? -1: 1 };
+        return { axis: 'z', row: cubeletseenas.zz, angle: boolToInt( XOR( !ccw, cubeletseenas.zz? -1: 1 )) };
     }
     if (cubeletseenas.yy == 1 && cubeletseenas.zz == 1) {
-        return { axis: 'x', row: cubeletseenas.xx, angle: cubeletseenas.xx? -1: 1 };
+        return { axis: 'x', row: cubeletseenas.xx, angle: boolToInt( XOR( !ccw, cubeletseenas.xx? -1: 1 )) };
     }
     if (cubeletseenas.zz == 1 && cubeletseenas.xx == 1) {
-        return { axis: 'y', row: cubeletseenas.yy, angle: cubeletseenas.yy? -1: 1 };
+        return { axis: 'y', row: cubeletseenas.yy, angle: boolToInt( XOR( !ccw, cubeletseenas.yy? -1: 1 )) };
     }
     var r = {};
+    function XOR(a,b) { return ( a || b ) && !( a && b ); }
     if (cubeletseenas.xx == 1) {
         r.row = cubeletseenas.xx;
         r.axis = 'x';
-        r.angle = boolToInt(
+        r.angle = boolToInt( XOR( ccw,
             ( faceasseen == 'front' && cubeletseenas.yy === 0 ) ||
             ( faceasseen == 'back' && cubeletseenas.yy !== 0 ) ||
             ( faceasseen == 'top' && cubeletseenas.zz !== 0 ) ||
-            ( faceasseen == 'bottom' && cubeletseenas.zz === 0 ));
+            ( faceasseen == 'bottom' && cubeletseenas.zz === 0 )
+        ));
         
         return r;
     }
     else if (cubeletseenas.yy == 1) {
         r.row = cubeletseenas.yy;
         r.axis = 'y';
-        r.angle = boolToInt(
+        r.angle = boolToInt( XOR( ccw,
             ( faceasseen == 'left' && cubeletseenas.zz !== 0 ) ||
             ( faceasseen == 'right' && cubeletseenas.zz === 0 ) ||
             ( faceasseen == 'front' && cubeletseenas.xx !== 0 ) ||
-            ( faceasseen == 'back' && cubeletseenas.xx === 0 ));
+            ( faceasseen == 'back' && cubeletseenas.xx === 0 )
+        ));
         
         return r;
     }
     else if (cubeletseenas.zz == 1 ) {
         r.row = cubeletseenas.zz;
         r.axis = 'z';
-        r.angle = boolToInt(
+        r.angle = boolToInt( XOR( ccw,
             ( faceasseen == 'top' && cubeletseenas.xx === 0 ) ||
             ( faceasseen == 'bottom' && cubeletseenas.xx !== 0 ) ||
             ( faceasseen == 'left' && cubeletseenas.yy === 0 ) ||
-            ( faceasseen == 'right' && cubeletseenas.yy !== 0 ));
+            ( faceasseen == 'right' && cubeletseenas.yy !== 0 )
+        ));
         
         return r;
     }
@@ -171,7 +175,7 @@ function onEngageStart( event ) {
     // console.log(target.face.asseen);
     // console.log(cubeletseenas);
 	
-    possibleRotation = calculateRotation(cubeletseenas, target.face.asseen);
+    possibleRotation = calculateRotation(cubeletseenas, target.face.asseen, event.shiftKey);
 }
 
 function onEngageContinue( event ) {
