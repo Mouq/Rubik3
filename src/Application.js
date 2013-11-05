@@ -1,6 +1,8 @@
 /*global THREE Rubik buildCubelet*/
 
-var COLORS = {inside:0x2c2c2c,top:0xFF00FF,bottom:0x00FF00,left:0xFFFF00,right:0x0000FF,front:0xFF0000,back:0x00FFFF}; // mutually complementary colors
+var COLORS = {
+    inside:0x2c2c2c,top:0xFF4F4F,bottom:0xFE995F,back:0x4FFEA7,front:0x4FA7FE,right:0xFFE774,left:0xFFFFFF
+};
 var CUBE_SIZE = 20;
 
 var container;
@@ -85,7 +87,7 @@ function createRenderer(size, rendering) {
     renderer.gammaOutput = true;
     
 	renderer.setSize( size.width, size.height );
-    renderer.setClearColor(0x000000, 1.0);
+    renderer.setClearColorHex(0x2c2c2f, 1.0);
     return renderer;
 }
 
